@@ -100,7 +100,7 @@ export default function App() {
       
       const newModelMessage: ChatMessage = {
         role: 'model',
-        content: response.text || 'Lo siento, no pude procesar la respuesta.',
+        content: response || 'Lo siento, no pude procesar la respuesta.',
         timestamp: Date.now()
       };
 
@@ -112,11 +112,18 @@ export default function App() {
          generateDummyGraphData();
       }
 
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
+      let errorMessage = 'Error al conectar con mi motor de cálculo. Por favor, intenta de nuevo.';
+      
+      // Check if it's a configuration error
+      if (error.message?.includes('API Key no encontrada') || error.message?.includes('GEMINI_API_KEY')) {
+        errorMessage = 'La API Key no está configurada. Si estás en Vercel, añade VITE_GEMINI_API_KEY en los ajustes de Environment Variables.';
+      }
+
       setMessages(prev => [...prev, {
         role: 'model',
-        content: 'Error al conectar con mi motor de cálculo. Por favor, intenta de nuevo.',
+        content: errorMessage,
         timestamp: Date.now()
       }]);
     } finally {
